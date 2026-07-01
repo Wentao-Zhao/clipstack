@@ -1,0 +1,38 @@
+import AppKit
+import ClipboardHistoryCore
+import Vision
+
+enum ImageTextRecognizer {
+  static func recognizedSearchText(from data: Data) async -> String? {
+    await Task.detached(priority: .utility) {
+      guard
+        let image = NSImage(data: data),
+        let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+      else {
+        return nil
+      }
+
+      let request = VNRecognizeTextRequest()
+      request.recognitionLevel = .accurate
+      request.usesLanguageCorrection = true
+
+      let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+      do {
+        try handler.perform([request])
+      } catch {
+        return nil
+      }
+
+      let recognizedText = request.results?
+        .compactMap { $0.topCandidates(1).first?.string }
+        .joined(separator: "\n")
+        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+      guard !recognizedText.isEmpty else {
+        return nil
+      }
+
+      return ClipboardCapturePolicy.preview(for: recognizedText)
+    }.value
+  }
+}

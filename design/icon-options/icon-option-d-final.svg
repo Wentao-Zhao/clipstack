@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <defs>
+    <radialGradient id="bgD" cx="36%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#b8a5c7"/>
+      <stop offset="46%" stop-color="#788ea8"/>
+      <stop offset="100%" stop-color="#5f6f67"/>
+    </radialGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.38"/>
+      <stop offset="56%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.16"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#1f2933" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .sheet { fill: #f2f2f0; }
+      .panel { fill: rgba(255,255,255,0.68); }
+      .app { filter: url(#softShadow); }
+      .gloss { fill: none; opacity: 0; }
+      .echo { fill: none; stroke: #fff8ef; stroke-linecap: round; stroke-linejoin: round; opacity: 0.34; }
+      .front { fill: none; stroke: #fff8ef; stroke-linecap: round; stroke-linejoin: round; opacity: 0.88; }
+      .clip { fill: #fff8ef; opacity: 0.76; }
+      .line { stroke: #fff8ef; stroke-linecap: round; opacity: 0.76; }
+      .line-soft { stroke: #fff8ef; stroke-linecap: round; opacity: 0.50; }
+      .label { fill: #34373d; font: 600 28px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+      .sub { fill: rgba(68,71,78,0.72); font: 400 17px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+      .size { fill: rgba(68,71,78,0.62); font: 500 14px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect class="sheet" width="980" height="560"/>
+  <rect class="panel" x="46" y="42" width="888" height="462" rx="38"/>
+
+  <text class="label" x="92" y="92">D 最终确认版</text>
+  <text class="sub" x="92" y="124">莫兰迪深雾渐变直接铺满图标底，去掉最外层包裹内框，保留层叠回声。</text>
+
+  <g transform="translate(128,160) scale(1.6)">
+    <use href="#icon"/>
+  </g>
+
+  <g transform="translate(530,176) scale(1.0)">
+    <use href="#icon"/>
+  </g>
+  <text class="size" x="610" y="360">160px</text>
+
+  <g transform="translate(736,216) scale(0.6)">
+    <use href="#icon"/>
+  </g>
+  <text class="size" x="784" y="360">96px</text>
+
+  <g transform="translate(864,240) scale(0.36)">
+    <use href="#icon"/>
+  </g>
+  <text class="size" x="893" y="360">58px</text>
+
+  <g id="icon" class="app">
+    <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgD)"/>
+    <rect class="echo" x="36" y="45" width="70" height="88" rx="14" stroke-width="7" opacity="0.28"/>
+    <rect class="echo" x="45" y="38" width="70" height="92" rx="14" stroke-width="7" opacity="0.38"/>
+    <rect class="front" x="54" y="31" width="70" height="100" rx="14" stroke-width="8"/>
+    <rect class="clip" x="72" y="22" width="34" height="19" rx="8"/>
+    <line class="line" x1="72" y1="67" x2="105" y2="67" stroke-width="7"/>
+    <line class="line" x1="72" y1="85" x2="105" y2="85" stroke-width="7"/>
+    <line class="line-soft" x1="72" y1="103" x2="105" y2="103" stroke-width="7"/>
+    <line class="line-soft" x1="72" y1="121" x2="105" y2="121" stroke-width="7"/>
+  </g>
+</svg>

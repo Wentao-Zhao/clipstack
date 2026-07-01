@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="540" viewBox="0 0 1640 540">
+  <defs>
+    <linearGradient id="bgA" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#b07a88"/>
+      <stop offset="48%" stop-color="#8da77e"/>
+      <stop offset="100%" stop-color="#839db8"/>
+    </linearGradient>
+    <linearGradient id="bgB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7f8fa8"/>
+      <stop offset="52%" stop-color="#899f82"/>
+      <stop offset="100%" stop-color="#c09b72"/>
+    </linearGradient>
+    <linearGradient id="bgC" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8f6370"/>
+      <stop offset="33%" stop-color="#8fa37a"/>
+      <stop offset="66%" stop-color="#7592ad"/>
+      <stop offset="100%" stop-color="#b99b67"/>
+    </linearGradient>
+    <radialGradient id="bgD" cx="36%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#b8a5c7"/>
+      <stop offset="46%" stop-color="#788ea8"/>
+      <stop offset="100%" stop-color="#5f6f67"/>
+    </radialGradient>
+    <linearGradient id="bgE" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9f7988"/>
+      <stop offset="50%" stop-color="#7e998c"/>
+      <stop offset="100%" stop-color="#8e9cb3"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.40"/>
+      <stop offset="56%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1f2933" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .sheet { fill: #f2f2f0; }
+      .card { fill: rgba(255,255,255,0.66); }
+      .app { filter: url(#softShadow); }
+      .gloss { fill: url(#shine); opacity: 0.78; }
+      .echo { fill: none; stroke: #fff8ef; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.30; }
+      .echo-strong { fill: none; stroke: #fff8ef; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.44; }
+      .front { fill: none; stroke: #fff8ef; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; opacity: 0.86; }
+      .clip { fill: #fff8ef; opacity: 0.76; }
+      .line { stroke: #fff8ef; stroke-width: 7; stroke-linecap: round; opacity: 0.74; }
+      .line-soft { stroke: #fff8ef; stroke-width: 7; stroke-linecap: round; opacity: 0.48; }
+      .label { fill: #3a3d42; font: 600 25px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; text-anchor: middle; }
+      .sub { fill: rgba(70,73,78,0.72); font: 400 15px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect class="sheet" width="1640" height="540"/>
+
+  <!-- A -->
+  <g transform="translate(40,42)">
+    <rect class="card" x="0" y="0" width="290" height="420" rx="34"/>
+    <g class="app" transform="translate(65,58)">
+      <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgA)"/>
+      <rect class="gloss" x="6" y="6" width="148" height="148" rx="32"/>
+      <rect class="echo" x="36" y="45" width="70" height="88" rx="14"/>
+      <rect class="echo-strong" x="45" y="38" width="70" height="92" rx="14"/>
+      <rect class="front" x="54" y="31" width="70" height="100" rx="14"/>
+      <rect class="clip" x="72" y="22" width="34" height="19" rx="8"/>
+      <line class="line" x1="72" y1="67" x2="105" y2="67"/>
+      <line class="line" x1="72" y1="85" x2="105" y2="85"/>
+      <line class="line" x1="72" y1="103" x2="105" y2="103"/>
+      <line class="line" x1="72" y1="121" x2="105" y2="121"/>
+    </g>
+    <text class="label" x="145" y="308">A. 奶油反选</text>
+    <text class="sub" x="145" y="340">偏柔和, 最贴近当前气质</text>
+    <text class="sub" x="145" y="368">推荐候选</text>
+  </g>
+
+  <!-- B -->
+  <g transform="translate(365,42)">
+    <rect class="card" x="0" y="0" width="290" height="420" rx="34"/>
+    <g class="app" transform="translate(65,58)">
+      <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgB)"/>
+      <rect class="gloss" x="6" y="6" width="148" height="148" rx="32"/>
+      <rect class="echo" x="35" y="47" width="70" height="86" rx="14"/>
+      <rect class="echo" x="45" y="39" width="70" height="91" rx="14"/>
+      <rect class="front" x="55" y="31" width="70" height="100" rx="14"/>
+      <rect class="clip" x="73" y="22" width="34" height="19" rx="8"/>
+      <line class="line" x1="73" y1="68" x2="106" y2="68"/>
+      <line class="line" x1="73" y1="86" x2="106" y2="86"/>
+      <line class="line" x1="73" y1="104" x2="106" y2="104"/>
+      <line class="line-soft" x1="73" y1="122" x2="106" y2="122"/>
+    </g>
+    <text class="label" x="145" y="308">B. 蓝绿反选</text>
+    <text class="sub" x="145" y="340">对比更稳, 菜单栏里更醒目</text>
+    <text class="sub" x="145" y="368">偏工具感</text>
+  </g>
+
+  <!-- C -->
+  <g transform="translate(690,42)">
+    <rect class="card" x="0" y="0" width="290" height="420" rx="34"/>
+    <g class="app" transform="translate(65,58)">
+      <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgC)"/>
+      <rect class="gloss" x="6" y="6" width="148" height="148" rx="32"/>
+      <rect class="echo" x="35" y="45" width="70" height="88" rx="14"/>
+      <rect class="echo-strong" x="45" y="38" width="70" height="92" rx="14"/>
+      <rect class="front" x="54" y="31" width="70" height="100" rx="14"/>
+      <rect class="clip" x="72" y="22" width="34" height="19" rx="8"/>
+      <line class="line" x1="72" y1="67" x2="105" y2="67"/>
+      <line class="line" x1="72" y1="85" x2="105" y2="85"/>
+      <line class="line" x1="72" y1="103" x2="105" y2="103"/>
+      <line class="line" x1="72" y1="121" x2="105" y2="121"/>
+    </g>
+    <text class="label" x="145" y="308">C. 四色反选</text>
+    <text class="sub" x="145" y="340">延续原四色莫兰迪</text>
+    <text class="sub" x="145" y="368">更活泼</text>
+  </g>
+
+  <!-- D -->
+  <g transform="translate(1015,42)">
+    <rect class="card" x="0" y="0" width="290" height="420" rx="34"/>
+    <g class="app" transform="translate(65,58)">
+      <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgD)"/>
+      <rect class="gloss" x="6" y="6" width="148" height="148" rx="32"/>
+      <rect class="echo" x="36" y="45" width="70" height="88" rx="14"/>
+      <rect class="echo" x="45" y="38" width="70" height="92" rx="14"/>
+      <rect class="front" x="54" y="31" width="70" height="100" rx="14"/>
+      <rect class="clip" x="72" y="22" width="34" height="19" rx="8"/>
+      <line class="line" x1="72" y1="67" x2="105" y2="67"/>
+      <line class="line" x1="72" y1="85" x2="105" y2="85"/>
+      <line class="line-soft" x1="72" y1="103" x2="105" y2="103"/>
+      <line class="line-soft" x1="72" y1="121" x2="105" y2="121"/>
+    </g>
+    <text class="label" x="145" y="308">D. 深雾反选</text>
+    <text class="sub" x="145" y="340">识别最强, 质感更沉</text>
+    <text class="sub" x="145" y="368">偏成熟</text>
+  </g>
+
+  <!-- E -->
+  <g transform="translate(1340,42)">
+    <rect class="card" x="0" y="0" width="290" height="420" rx="34"/>
+    <g class="app" transform="translate(65,58)">
+      <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bgE)"/>
+      <rect class="gloss" x="6" y="6" width="148" height="148" rx="32"/>
+      <rect class="echo" x="34" y="46" width="70" height="87" rx="14" opacity="0.20"/>
+      <rect class="echo" x="45" y="38" width="70" height="92" rx="14" opacity="0.26"/>
+      <rect class="front" x="56" y="31" width="68" height="100" rx="14" opacity="0.78"/>
+      <rect class="clip" x="73" y="22" width="34" height="19" rx="8" opacity="0.66"/>
+      <line class="line-soft" x1="73" y1="68" x2="106" y2="68"/>
+      <line class="line-soft" x1="73" y1="86" x2="106" y2="86"/>
+      <line class="line-soft" x1="73" y1="104" x2="106" y2="104"/>
+      <line class="line-soft" x1="73" y1="122" x2="106" y2="122"/>
+    </g>
+    <text class="label" x="145" y="308">E. 融合反选</text>
+    <text class="sub" x="145" y="340">前景最淡, 融入感最强</text>
+    <text class="sub" x="145" y="368">识别略弱</text>
+  </g>
+</svg>
