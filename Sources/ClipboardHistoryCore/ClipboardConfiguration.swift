@@ -161,7 +161,6 @@ public struct ClipboardConfiguration: Codable, Equatable {
   public var clearHistoryOnQuit: Bool
   public var panelEdge: ClipboardPanelEdge
   public var panelAppearance: ClipboardPanelAppearance
-  public var focusSearchOnShow: Bool
   public var launchAtLoginEnabled: Bool
   public var activationShortcut: ClipboardActivationShortcut
   public var customActivationShortcut: KeyboardShortcut?
@@ -179,7 +178,6 @@ public struct ClipboardConfiguration: Codable, Equatable {
     clearHistoryOnQuit: false,
     panelEdge: .bottom,
     panelAppearance: .system,
-    focusSearchOnShow: true,
     launchAtLoginEnabled: false,
     activationShortcut: .doubleCommand,
     customActivationShortcut: nil,
@@ -198,7 +196,6 @@ public struct ClipboardConfiguration: Codable, Equatable {
     clearHistoryOnQuit: Bool,
     panelEdge: ClipboardPanelEdge = .bottom,
     panelAppearance: ClipboardPanelAppearance = .system,
-    focusSearchOnShow: Bool = true,
     launchAtLoginEnabled: Bool = false,
     activationShortcut: ClipboardActivationShortcut = .doubleCommand,
     customActivationShortcut: KeyboardShortcut? = nil,
@@ -215,7 +212,6 @@ public struct ClipboardConfiguration: Codable, Equatable {
     self.clearHistoryOnQuit = clearHistoryOnQuit
     self.panelEdge = panelEdge
     self.panelAppearance = panelAppearance
-    self.focusSearchOnShow = focusSearchOnShow
     self.launchAtLoginEnabled = launchAtLoginEnabled
     self.activationShortcut = activationShortcut
     self.customActivationShortcut = customActivationShortcut?.isValid == true ? customActivationShortcut : nil

@@ -13,7 +13,6 @@ final class ClipboardPreferencesStore {
     static let clearHistoryOnQuit = "clearHistoryOnQuit"
     static let panelEdge = "panelEdge"
     static let panelAppearance = "panelAppearance"
-    static let focusSearchOnShow = "focusSearchOnShow"
     static let launchAtLoginEnabled = "launchAtLoginEnabled"
     static let activationShortcut = "activationShortcut"
     static let customActivationShortcut = "customActivationShortcut"
@@ -41,7 +40,6 @@ final class ClipboardPreferencesStore {
         clearHistoryOnQuit: value(for: Key.clearHistoryOnQuit, fallback: fallback.clearHistoryOnQuit),
         panelEdge: panelEdge(fallback: fallback.panelEdge),
         panelAppearance: panelAppearance(fallback: fallback.panelAppearance),
-        focusSearchOnShow: value(for: Key.focusSearchOnShow, fallback: fallback.focusSearchOnShow),
         launchAtLoginEnabled: value(for: Key.launchAtLoginEnabled, fallback: fallback.launchAtLoginEnabled),
         activationShortcut: activationShortcut(fallback: fallback.activationShortcut),
         customActivationShortcut: customActivationShortcut(),
@@ -58,7 +56,6 @@ final class ClipboardPreferencesStore {
       defaults.set(newValue.clearHistoryOnQuit, forKey: Key.clearHistoryOnQuit)
       defaults.set(newValue.panelEdge.rawValue, forKey: Key.panelEdge)
       defaults.set(newValue.panelAppearance.rawValue, forKey: Key.panelAppearance)
-      defaults.set(newValue.focusSearchOnShow, forKey: Key.focusSearchOnShow)
       defaults.set(newValue.launchAtLoginEnabled, forKey: Key.launchAtLoginEnabled)
       defaults.set(newValue.activationShortcut.rawValue, forKey: Key.activationShortcut)
       if

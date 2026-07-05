@@ -11,11 +11,12 @@ struct TestRunner {
     testRetentionOptions(recorder)
     testPanelEdgeOptions(recorder)
     testPanelAppearanceOptions(recorder)
-    testInitialFocusOptions(recorder)
+    testHistoryPanelFocusState(recorder)
     testActivationShortcutOptions(recorder)
     testSelectionActionOptions(recorder)
     testSearchFilterMatchesTextPreviewAndImageSearchText(recorder)
     testSearchFilterReturnsAllItemsForEmptyQuery(recorder)
+    testHistorySearchInputRouting(recorder)
     testKeyboardShortcutMatching(recorder)
     testNotePointerStateActivatesRegularNoteClick(recorder)
     testNotePointerStatePinsWithoutActivatingWhenPinMouseEventsLeak(recorder)
@@ -62,7 +63,6 @@ struct TestRunner {
     recorder.expect(!config.clearHistoryOnQuit, "clear-on-quit defaults to disabled")
     recorder.expect(config.panelEdge == .bottom, "history panel defaults to the bottom edge")
     recorder.expect(config.panelAppearance == .system, "history panel appearance follows system by default")
-    recorder.expect(config.focusSearchOnShow, "history panel focuses search on show by default")
     recorder.expect(!config.launchAtLoginEnabled, "launch-at-login defaults to disabled")
     recorder.expect(config.activationShortcut == .doubleCommand, "activation shortcut defaults to double Command")
     recorder.expect(config.customActivationShortcut == nil, "custom activation shortcut defaults to unset")
@@ -109,12 +109,25 @@ struct TestRunner {
     recorder.expect(ClipboardPanelAppearance.dark.displayName == "深色模式", "dark appearance option is labeled")
   }
 
-  private static func testInitialFocusOptions(_ recorder: TestRecorder) {
-    var config = ClipboardConfiguration.default
+  private static func testHistoryPanelFocusState(_ recorder: TestRecorder) {
+    var state = HistoryPanelFocusState()
 
-    recorder.expect(config.focusSearchOnShow, "history panel search focus is enabled by default")
-    config.focusSearchOnShow = false
-    recorder.expect(!config.focusSearchOnShow, "history panel search focus can be disabled")
+    recorder.expect(state.target == .notes, "history panel focuses notes when shown")
+
+    state.beginSearchInput()
+    recorder.expect(state.target == .search, "typing in notes moves focus to search")
+
+    state.searchQueryDidChange("合同")
+    recorder.expect(state.target == .search, "non-empty search keeps search focused")
+
+    state.searchQueryDidChange("")
+    recorder.expect(state.target == .notes, "clearing search returns focus to notes")
+
+    state.focusSearch()
+    recorder.expect(state.target == .search, "moving up from notes focuses search")
+
+    state.focusNotes()
+    recorder.expect(state.target == .notes, "moving down from search focuses notes")
   }
 
   private static func testActivationShortcutOptions(_ recorder: TestRecorder) {
@@ -167,6 +180,37 @@ struct TestRunner {
     recorder.expect(
       ClipboardSearchFilter.filteredItems(query: "  ", items: items).map(\.id) == ["first", "second"],
       "empty search query returns all history items"
+    )
+  }
+
+  private static func testHistorySearchInputRouting(_ recorder: TestRecorder) {
+    recorder.expect(
+      HistorySearchInputRouting.shouldBeginSearch(characters: "a", keyCode: 0, modifiers: []),
+      "typing a character in history begins search"
+    )
+    recorder.expect(
+      HistorySearchInputRouting.shouldBeginSearch(characters: "A", keyCode: 0, modifiers: [.shift]),
+      "shifted text input in history begins search"
+    )
+    recorder.expect(
+      HistorySearchInputRouting.shouldBeginSearch(characters: "你", keyCode: 0, modifiers: []),
+      "non-Latin text input in history begins search"
+    )
+    recorder.expect(
+      !HistorySearchInputRouting.shouldBeginSearch(characters: "a", keyCode: 0, modifiers: [.command]),
+      "Command shortcuts do not begin search"
+    )
+    recorder.expect(
+      !HistorySearchInputRouting.shouldBeginSearch(characters: "a", keyCode: 0, modifiers: [.control]),
+      "Control shortcuts do not begin search"
+    )
+    recorder.expect(
+      !HistorySearchInputRouting.shouldBeginSearch(characters: "\u{F701}", keyCode: 125, modifiers: [.function]),
+      "arrow keys do not begin search"
+    )
+    recorder.expect(
+      !HistorySearchInputRouting.shouldBeginSearch(characters: "\u{7F}", keyCode: 51, modifiers: []),
+      "delete does not begin search"
     )
   }
 

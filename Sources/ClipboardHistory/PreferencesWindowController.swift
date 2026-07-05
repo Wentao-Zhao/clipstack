@@ -14,7 +14,6 @@ final class PreferencesWindowController: NSWindowController {
   private let memoryBudgetPopup = NSPopUpButton()
   private let panelEdgePopup = NSPopUpButton()
   private let panelAppearancePopup = NSPopUpButton()
-  private let focusSearchOnShowSwitch = NSSwitch()
   private let activationShortcutPopup = NSPopUpButton()
   private let shortcutRecorderButton = ShortcutRecorderButton()
   private let selectionActionPopup = NSPopUpButton()
@@ -29,7 +28,7 @@ final class PreferencesWindowController: NSWindowController {
     self.onConfigurationChanged = onConfigurationChanged
 
     let window = NSWindow(
-      contentRect: NSRect(x: 0, y: 0, width: 460, height: 544),
+      contentRect: NSRect(x: 0, y: 0, width: 460, height: 504),
       styleMask: [.titled, .closable],
       backing: .buffered,
       defer: false
@@ -72,7 +71,6 @@ final class PreferencesWindowController: NSWindowController {
     stack.addArrangedSubview(row(label: "内存预算", control: memoryBudgetPopup))
     stack.addArrangedSubview(row(label: "呼出位置", control: panelEdgePopup))
     stack.addArrangedSubview(row(label: "外观模式", control: panelAppearancePopup))
-    stack.addArrangedSubview(row(label: "呼出后聚焦搜索", control: focusSearchOnShowSwitch))
     stack.addArrangedSubview(row(label: "呼出快捷键", control: shortcutControls()))
     stack.addArrangedSubview(row(label: "选中后动作", control: selectionActionPopup))
     stack.addArrangedSubview(row(label: "开机自启", control: launchAtLoginSwitch))
@@ -141,8 +139,6 @@ final class PreferencesWindowController: NSWindowController {
     panelEdgePopup.action = #selector(controlChanged)
     panelAppearancePopup.target = self
     panelAppearancePopup.action = #selector(controlChanged)
-    focusSearchOnShowSwitch.target = self
-    focusSearchOnShowSwitch.action = #selector(controlChanged)
     activationShortcutPopup.target = self
     activationShortcutPopup.action = #selector(controlChanged)
     shortcutRecorderButton.onShortcutCaptured = { [weak self] shortcut in
@@ -168,7 +164,6 @@ final class PreferencesWindowController: NSWindowController {
     memoryBudgetPopup.selectItem(withTitle: "\(config.memoryBudgetBytes / 1024 / 1024) MB")
     panelEdgePopup.selectItem(withTitle: config.panelEdge.displayName)
     panelAppearancePopup.selectItem(withTitle: config.panelAppearance.displayName)
-    focusSearchOnShowSwitch.state = config.focusSearchOnShow ? .on : .off
     activationShortcutPopup.selectItem(withTitle: config.activationShortcut.displayName)
     shortcutRecorderButton.shortcut = config.customActivationShortcut
     shortcutRecorderButton.isEnabled = config.activationShortcut == .customKeyCombo
@@ -209,8 +204,6 @@ final class PreferencesWindowController: NSWindowController {
     {
       config.panelAppearance = panelAppearance
     }
-
-    config.focusSearchOnShow = focusSearchOnShowSwitch.state == .on
 
     if
       let rawValue = activationShortcutPopup.selectedItem?.representedObject as? String,

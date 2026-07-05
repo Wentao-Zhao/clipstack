@@ -13,6 +13,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
   private var allRows: [ClipboardHistoryItem] = []
   private var rows: [ClipboardHistoryItem] = []
   private var searchQuery = ""
+  private var focusState = HistoryPanelFocusState()
   private var selectionState = ClipboardHistorySelectionState(itemCount: 0)
   private var noteViews: [StickyNoteView] = []
   private weak var activeSearchField: HistorySearchField?
@@ -36,6 +37,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
   func show() {
     allRows = store.items
     searchQuery = ""
+    focusState = HistoryPanelFocusState()
     rows = ClipboardSearchFilter.filteredItems(query: searchQuery, items: allRows)
     selectionState = ClipboardHistorySelectionState(itemCount: rows.count)
     targetApplication = frontmostTargetApplication()
@@ -57,7 +59,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
 
     NSApp.activate(ignoringOtherApps: true)
     panel.makeKeyAndOrderFront(nil)
-    applyInitialFocus(config: config)
+    focusNotes()
   }
 
   func close() {
@@ -138,6 +140,9 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
     notesContainer.onDefaultAction = { [weak self] in self?.activateSelectedItem() }
     notesContainer.onMoveSelection = { [weak self] step in self?.moveSelection(by: step) }
     notesContainer.onFocusSearch = { [weak self] in self?.focusSearch() }
+    notesContainer.onBeginSearch = { [weak self] event in
+      self?.beginSearch(with: event)
+    }
     notesContainer.onEscape = { [weak self] in self?.close() }
     notesFocusView = notesContainer
     root.addSubview(notesContainer)
@@ -318,6 +323,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
     }
 
     searchQuery = query
+    focusState.searchQueryDidChange(query)
     rows = ClipboardSearchFilter.filteredItems(query: searchQuery, items: allRows)
     selectionState = ClipboardHistorySelectionState(itemCount: rows.count)
 
@@ -334,12 +340,8 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
       edge: activePanelEdge,
       theme: PanelTheme(appearance: activePanelAppearance)
     )
-  }
 
-  private func applyInitialFocus(config: ClipboardConfiguration) {
-    if config.focusSearchOnShow || rows.isEmpty {
-      focusSearch()
-    } else {
+    if focusState.target == .notes {
       focusNotes()
     }
   }
@@ -349,6 +351,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
       return
     }
 
+    focusState.focusSearch()
     panel?.makeFirstResponder(activeSearchField)
   }
 
@@ -357,7 +360,23 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
       return
     }
 
+    focusState.focusNotes()
     panel?.makeFirstResponder(notesFocusView)
+  }
+
+  private func beginSearch(with event: NSEvent) {
+    guard let activeSearchField else {
+      return
+    }
+
+    focusState.beginSearchInput()
+    panel?.makeFirstResponder(activeSearchField)
+
+    if let editor = activeSearchField.currentEditor() {
+      editor.keyDown(with: event)
+    } else {
+      activeSearchField.keyDown(with: event)
+    }
   }
 
   private func activateSelectedItem() {
@@ -475,6 +494,7 @@ private final class HistoryNotesFocusView: NSView {
   var onDefaultAction: (() -> Void)?
   var onMoveSelection: ((Int) -> Void)?
   var onFocusSearch: (() -> Void)?
+  var onBeginSearch: ((NSEvent) -> Void)?
 
   override var acceptsFirstResponder: Bool {
     true
@@ -493,8 +513,39 @@ private final class HistoryNotesFocusView: NSView {
     case 53:
       onEscape?()
     default:
-      super.keyDown(with: event)
+      if HistorySearchInputRouting.shouldBeginSearch(
+        characters: event.characters,
+        keyCode: event.keyCode,
+        modifiers: Self.commandModifiers(from: event)
+      ) {
+        onBeginSearch?(event)
+      } else {
+        super.keyDown(with: event)
+      }
     }
+  }
+
+  private static func commandModifiers(from event: NSEvent) -> Set<CommandModifier> {
+    let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+    var modifiers: Set<CommandModifier> = []
+
+    if flags.contains(.command) {
+      modifiers.insert(.command)
+    }
+    if flags.contains(.shift) {
+      modifiers.insert(.shift)
+    }
+    if flags.contains(.option) {
+      modifiers.insert(.option)
+    }
+    if flags.contains(.control) {
+      modifiers.insert(.control)
+    }
+    if flags.contains(.function) {
+      modifiers.insert(.function)
+    }
+
+    return modifiers
   }
 }
 
