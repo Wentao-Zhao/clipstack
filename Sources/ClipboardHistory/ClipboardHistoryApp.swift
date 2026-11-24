@@ -52,6 +52,9 @@ private final class ClipboardHistoryApplicationController {
     },
     onPinImage: { [weak self] item, style in
       self?.pinImage(item, style: style)
+    },
+    onOpenPreferences: { [weak self] in
+      self?.preferencesWindowController.show()
     }
   )
   private lazy var pinnedImageWindowManager = PinnedImageWindowManager()

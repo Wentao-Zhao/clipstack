@@ -16,6 +16,8 @@ struct TestRunner {
     testSelectionActionOptions(recorder)
     testSearchFilterMatchesTextPreviewAndImageSearchText(recorder)
     testSearchFilterReturnsAllItemsForEmptyQuery(recorder)
+    testSearchFilterCombinesKindAndQuery(recorder)
+    testContentPresentation(recorder)
     testHistorySearchInputRouting(recorder)
     testKeyboardShortcutMatching(recorder)
     testNotePointerStateActivatesRegularNoteClick(recorder)
@@ -47,6 +49,54 @@ struct TestRunner {
     }
     print("\(recorder.failures.count) failures across \(recorder.checkCount) checks")
     exit(1)
+  }
+
+  private static func testSearchFilterCombinesKindAndQuery(_ recorder: TestRecorder) {
+    let text = makeItem(id: "text", kind: .text, preview: "合同内容")
+    let image = makeItem(id: "image", kind: .image, searchText: "合同截图")
+    let items = [text, image]
+    recorder.expect(
+      ClipboardSearchFilter.filteredItems(query: "合同", items: items, kind: .image).map(\.id) == ["image"],
+      "image category combines with OCR search"
+    )
+    recorder.expect(
+      ClipboardSearchFilter.filteredItems(query: "", items: items, kind: .text).map(\.id) == ["text"],
+      "text category filters without a search query"
+    )
+    recorder.expect(
+      ClipboardSearchFilter.filteredItems(query: "不存在", items: items, kind: .image).isEmpty,
+      "category search can have no results"
+    )
+  }
+
+  private static func testContentPresentation(_ recorder: TestRecorder) {
+    func presentation(_ text: String) -> ClipboardContentPresentation {
+      ClipboardContentPresentation(item: makeItem(id: "preview", kind: .text, preview: text))
+    }
+    let link = presentation("  https://developer.example.com:8443/docs?q=swift#start \n")
+    recorder.expect(link.kind == .link, "whole HTTP URLs receive link presentation")
+    recorder.expect(link.title == "developer.example.com:8443", "link title preserves host and port")
+    recorder.expect(link.body == "/docs?q=swift#start", "link preview preserves path, query and fragment")
+    recorder.expect(link.badge == "HTTPS", "link badge reflects its real scheme")
+    recorder.expect(presentation("http://example.com").badge == "HTTP", "HTTP is not mislabeled HTTPS")
+    recorder.expect(presentation("访问 https://example.com 查看说明").kind == .text, "URLs inside prose remain text")
+    recorder.expect(presentation("javascript:alert(1)").kind == .text, "non-web schemes remain text")
+    recorder.expect(presentation("https://").kind == .text, "URLs without a host remain text")
+    recorder.expect(presentation("SELECT owner_id, tenant_id FROM users;").kind == .code, "SQL receives code presentation")
+    recorder.expect(presentation("select your preferred option").kind == .text, "ordinary prose beginning with select stays text")
+    recorder.expect(presentation("{\"enabled\":true}").badge == "JSON", "valid JSON receives a JSON label")
+    recorder.expect(presentation("{明天讨论}").kind == .text, "braces around prose do not imply JSON")
+    let code = "func hello() {\n  print(\"Hello\")\n}"
+    recorder.expect(presentation(code).body == code, "code indentation and line breaks are preserved")
+    let text = presentation("检查提交重大风险\n合并前检查数据安全。")
+    recorder.expect(text.title == "检查提交重大风险", "first text line is the content title")
+    recorder.expect(text.body == "合并前检查数据安全。", "text body does not duplicate the title")
+    recorder.expect(presentation("只有一行").body.isEmpty, "single-line text is not repeated")
+    recorder.expect(presentation(" \n ").title == "空文本", "blank previews have a useful fallback")
+    recorder.expect(
+      ClipboardContentPresentation(item: makeItem(id: "image", kind: .image, preview: "SELECT x FROM y;")).kind == .image,
+      "image OCR or display text never changes image presentation"
+    )
   }
 
   private static func testDefaultConfiguration(_ recorder: TestRecorder) {

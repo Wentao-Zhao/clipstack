@@ -3,7 +3,10 @@
 .swiftpm/
 .swift-home/
 .superpowers/
-dist/
+dist/*
+!dist/ClipStack.dmg
+output/
+design/panel-options/
 *.dSYM/
 *.xcuserstate
 

@@ -12,6 +12,9 @@ export CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$ROOT_DIR/.build/clan
 mkdir -p "$CLANG_MODULE_CACHE_PATH"
 
 BUILD_ARGS=(-c release)
+if [[ -n "${CLIPBOARD_HISTORY_BUILD_SYSTEM:-}" ]]; then
+    BUILD_ARGS+=(--build-system "$CLIPBOARD_HISTORY_BUILD_SYSTEM")
+fi
 if [[ "${CLIPBOARD_HISTORY_SWIFTPM_DISABLE_SANDBOX:-0}" == "1" ]]; then
     BUILD_ARGS+=(--disable-sandbox)
 fi

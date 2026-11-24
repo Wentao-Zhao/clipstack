@@ -1,6 +1,7 @@
 import AppKit
 import ClipboardHistoryCore
 import Foundation
+import ImageIO
 
 @MainActor
 final class ClipboardHistoryStore {
@@ -147,7 +148,18 @@ final class ClipboardHistoryStore {
     guard let relativePath = item.thumbnailRelativePath else {
       return nil
     }
-    return rootURL.appendingPathComponent(relativePath, isDirectory: false)
+    let thumbnailURL = rootURL.appendingPathComponent(relativePath, isDirectory: false)
+    let originalURL = rootURL.appendingPathComponent(item.contentRelativePath, isDirectory: false)
+    let currentSide = imagePixelSide(at: thumbnailURL) ?? 0
+    // Older versions cached small icons. Upgrade only when the original has more detail.
+    if currentSide < 480,
+       let originalSide = imagePixelSide(at: originalURL),
+       currentSide < min(480, originalSide),
+       let data = try? Data(contentsOf: originalURL),
+       let thumbnail = makeThumbnailData(from: data) {
+      try? thumbnail.write(to: thumbnailURL, options: .atomic)
+    }
+    return thumbnailURL
   }
 
   func contentData(for item: ClipboardHistoryItem) -> Data? {
@@ -276,31 +288,24 @@ final class ClipboardHistoryStore {
   }
 
   private func makeThumbnailData(from data: Data) -> Data? {
-    guard let image = NSImage(data: data) else {
-      return nil
-    }
+    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
+    let options: [CFString: Any] = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceThumbnailMaxPixelSize: 480,
+      kCGImageSourceShouldCacheImmediately: true,
+    ]
+    guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+    return NSBitmapImageRep(cgImage: thumbnail).representation(using: .png, properties: [:])
+  }
 
-    let maxSide: CGFloat = 120
-    let sourceSize = image.size
-    guard sourceSize.width > 0, sourceSize.height > 0 else {
-      return nil
-    }
-
-    let scale = min(maxSide / sourceSize.width, maxSide / sourceSize.height, 1)
-    let targetSize = NSSize(width: sourceSize.width * scale, height: sourceSize.height * scale)
-    let thumbnail = NSImage(size: targetSize)
-    thumbnail.lockFocus()
-    image.draw(in: NSRect(origin: .zero, size: targetSize))
-    thumbnail.unlockFocus()
-
-    guard
-      let tiff = thumbnail.tiffRepresentation,
-      let bitmap = NSBitmapImageRep(data: tiff)
-    else {
-      return nil
-    }
-
-    return bitmap.representation(using: .png, properties: [:])
+  private func imagePixelSide(at url: URL) -> Int? {
+    guard let source = CGImageSourceCreateWithURL(url as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary),
+          let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+          let width = properties[kCGImagePropertyPixelWidth] as? NSNumber,
+          let height = properties[kCGImagePropertyPixelHeight] as? NSNumber else { return nil }
+    return max(width.intValue, height.intValue)
   }
 
   private func presentStorageError(_ error: Error) {

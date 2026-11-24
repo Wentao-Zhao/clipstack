@@ -3,15 +3,13 @@ import Foundation
 public enum ClipboardSearchFilter {
   public static func filteredItems(
     query: String,
-    items: [ClipboardHistoryItem]
+    items: [ClipboardHistoryItem],
+    kind: ClipboardItemKind? = nil
   ) -> [ClipboardHistoryItem] {
     let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !normalizedQuery.isEmpty else {
-      return items
-    }
-
     return items.filter { item in
-      searchableText(for: item).range(
+      guard kind == nil || item.kind == kind else { return false }
+      return normalizedQuery.isEmpty || searchableText(for: item).range(
         of: normalizedQuery,
         options: [.caseInsensitive, .diacriticInsensitive]
       ) != nil
