@@ -6,7 +6,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
   private let store: ClipboardHistoryStore
   private let configurationProvider: () -> ClipboardConfiguration
   private let onSelect: (ClipboardHistoryItem, NSRunningApplication?) -> Void
-  private let onPinImage: (ClipboardHistoryItem, PinnedImageStyle) -> Void
+  private let onPinImage: (ClipboardHistoryItem) -> Void
   private let onOpenPreferences: () -> Void
   private var targetApplication: NSRunningApplication?
   private var panel: HistoryPanel?
@@ -27,7 +27,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
     store: ClipboardHistoryStore,
     configurationProvider: @escaping () -> ClipboardConfiguration,
     onSelect: @escaping (ClipboardHistoryItem, NSRunningApplication?) -> Void,
-    onPinImage: @escaping (ClipboardHistoryItem, PinnedImageStyle) -> Void,
+    onPinImage: @escaping (ClipboardHistoryItem) -> Void,
     onOpenPreferences: @escaping () -> Void
   ) {
     self.store = store
@@ -185,7 +185,7 @@ final class HistoryPanelController: NSObject, NSSearchFieldDelegate {
         onSelect: { [weak self] item in self?.select(item) },
         onActivate: { [weak self] item in self?.activate(item) },
         onPin: item.kind == .image ? { [weak self] item in
-          self?.onPinImage(item, PinnedImageStyle(background: theme.paper, accent: PanelTheme.cobalt, border: theme.border))
+          self?.onPinImage(item)
         } : nil
       )
     }

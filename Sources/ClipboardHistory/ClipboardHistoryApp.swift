@@ -50,8 +50,8 @@ private final class ClipboardHistoryApplicationController {
     onSelect: { [weak self] item, targetApplication in
       self?.paste(item, targetApplication: targetApplication)
     },
-    onPinImage: { [weak self] item, style in
-      self?.pinImage(item, style: style)
+    onPinImage: { [weak self] item in
+      self?.pinImage(item)
     },
     onOpenPreferences: { [weak self] in
       self?.preferencesWindowController.show()
@@ -135,7 +135,7 @@ private final class ClipboardHistoryApplicationController {
     }
   }
 
-  private func pinImage(_ item: ClipboardHistoryItem, style: PinnedImageStyle) {
+  private func pinImage(_ item: ClipboardHistoryItem) {
     guard item.kind == .image else {
       return
     }
@@ -149,7 +149,7 @@ private final class ClipboardHistoryApplicationController {
     }
 
     historyStore.markUsed(item)
-    pinnedImageWindowManager.show(image: image, style: style)
+    pinnedImageWindowManager.show(image: image)
   }
 
   private func quit() {

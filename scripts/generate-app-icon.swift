@@ -1,238 +1,139 @@
 import AppKit
 import Foundation
 
-NSApplication.shared.setActivationPolicy(.prohibited)
-
+// A2: porcelain tile, layered blue cards, a white clamp and two content strokes.
+// Native paths keep the selected design clean at every macOS icon size.
 let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-let iconsetURL = rootURL
-  .appendingPathComponent("Resources", isDirectory: true)
-  .appendingPathComponent("AppIcon.iconset", isDirectory: true)
-
-try? FileManager.default.removeItem(at: iconsetURL)
+let resourcesURL = rootURL.appendingPathComponent("Resources", isDirectory: true)
+let iconsetURL = resourcesURL.appendingPathComponent("AppIcon.iconset", isDirectory: true)
 try FileManager.default.createDirectory(at: iconsetURL, withIntermediateDirectories: true)
 
 let sizes: [(name: String, pixels: Int)] = [
-  ("icon_16x16.png", 16),
-  ("icon_16x16@2x.png", 32),
-  ("icon_32x32.png", 32),
-  ("icon_32x32@2x.png", 64),
-  ("icon_128x128.png", 128),
-  ("icon_128x128@2x.png", 256),
-  ("icon_256x256.png", 256),
-  ("icon_256x256@2x.png", 512),
-  ("icon_512x512.png", 512),
-  ("icon_512x512@2x.png", 1024),
+  ("icon_16x16.png", 16), ("icon_16x16@2x.png", 32),
+  ("icon_32x32.png", 32), ("icon_32x32@2x.png", 64),
+  ("icon_128x128.png", 128), ("icon_128x128@2x.png", 256),
+  ("icon_256x256.png", 256), ("icon_256x256@2x.png", 512),
+  ("icon_512x512.png", 512), ("icon_512x512@2x.png", 1024),
 ]
-
 for size in sizes {
-  let image = drawIcon(size: size.pixels)
-  let destination = iconsetURL.appendingPathComponent(size.name, isDirectory: false)
-  try pngData(from: image)?.write(to: destination, options: .atomic)
+  let data = try drawIcon(pixels: size.pixels)
+  try data.write(to: iconsetURL.appendingPathComponent(size.name), options: .atomic)
+  if size.pixels == 1024 {
+    try data.write(to: resourcesURL.appendingPathComponent("AppIcon.png"), options: .atomic)
+  }
 }
 
-func drawIcon(size: Int) -> NSImage {
-  let canvas = CGFloat(size)
-  let image = NSImage(size: NSSize(width: canvas, height: canvas))
-  image.lockFocus()
-
-  let backgroundRect = NSRect(
-    x: 0,
-    y: 0,
-    width: canvas,
-    height: canvas
-  )
-  drawRadialGradient(
-    in: backgroundRect,
-    radius: canvas * 0.225,
-    colors: [
-      CGColor(red: 0.72, green: 0.65, blue: 0.78, alpha: 1),
-      CGColor(red: 0.47, green: 0.56, blue: 0.66, alpha: 1),
-      CGColor(red: 0.37, green: 0.44, blue: 0.40, alpha: 1),
-    ],
-    locations: [0, 0.46, 1],
-    center: CGPoint(x: canvas * 0.36, y: canvas * 0.72),
-    endRadius: canvas * 0.78
-  )
-
-  let outerEchoRect = NSRect(
-    x: canvas * 0.225,
-    y: canvas * 0.281,
-    width: canvas * 0.44,
-    height: canvas * 0.55
-  )
-  drawStroke(
-    rect: outerEchoRect,
-    radius: canvas * 0.075,
-    lineWidth: max(2, canvas * 0.034),
-    color: NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.28)
-  )
-
-  let innerEchoRect = NSRect(
-    x: canvas * 0.281,
-    y: canvas * 0.238,
-    width: canvas * 0.44,
-    height: canvas * 0.58
-  )
-  drawStroke(
-    rect: innerEchoRect,
-    radius: canvas * 0.075,
-    lineWidth: max(2, canvas * 0.034),
-    color: NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.38)
-  )
-
-  let bodyRect = NSRect(
-    x: canvas * 0.34,
-    y: canvas * 0.18,
-    width: canvas * 0.44,
-    height: canvas * 0.62
-  )
-  let bodyPath = CGPath(
-    roundedRect: bodyRect,
-    cornerWidth: canvas * 0.075,
-    cornerHeight: canvas * 0.075,
-    transform: nil
-  )
-
-  drawSolidStroke(
-    path: bodyPath,
-    lineWidth: max(2, canvas * 0.038),
-    color: NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.88)
-  )
-
-  let clipRect = NSRect(
-    x: canvas * 0.45,
-    y: canvas * 0.735,
-    width: canvas * 0.213,
-    height: canvas * 0.119
-  )
-  let clip = NSBezierPath(
-    roundedRect: clipRect,
-    xRadius: canvas * 0.052,
-    yRadius: canvas * 0.052
-  )
-  NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.76).setFill()
-  clip.fill()
-
-  let lines: [(y: CGFloat, color: NSColor)] = [
-    (0.59, NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.76)),
-    (0.48, NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.76)),
-    (0.37, NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.50)),
-    (0.26, NSColor(red: 1.00, green: 0.97, blue: 0.94, alpha: 0.50)),
-  ]
-
-  for lineConfig in lines {
-    lineConfig.color.setStroke()
-    let line = NSBezierPath()
-    line.move(to: NSPoint(x: canvas * 0.45, y: canvas * lineConfig.y))
-    line.line(to: NSPoint(x: canvas * 0.66, y: canvas * lineConfig.y))
-    line.lineWidth = max(1, canvas * 0.028)
-    line.lineCapStyle = .round
-    line.stroke()
+func drawIcon(pixels: Int) throws -> Data {
+  guard let bitmap = NSBitmapImageRep(
+    bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels,
+    bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true,
+    isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0
+  ), let graphics = NSGraphicsContext(bitmapImageRep: bitmap) else {
+    throw IconError.renderFailed
   }
+  NSGraphicsContext.saveGraphicsState()
+  NSGraphicsContext.current = graphics
+  defer { NSGraphicsContext.restoreGraphicsState() }
+  let context = graphics.cgContext
+  context.clear(CGRect(x: 0, y: 0, width: pixels, height: pixels))
+  let scale = CGFloat(pixels) / 1024
+  context.scaleBy(x: scale, y: scale)
+  context.setShouldAntialias(true)
 
-  image.unlockFocus()
-  return image
-}
+  let tile = CGPath(roundedRect: CGRect(x: 84, y: 80, width: 856, height: 856),
+                    cornerWidth: 190, cornerHeight: 190, transform: nil)
+  shadowedFill(tile, color: rgb(0.96, 0.97, 0.99), blur: 12, offset: -5, opacity: 0.12, in: context)
+  gradient(tile, colors: [rgb(0.995, 0.996, 1), rgb(0.955, 0.960, 0.980)],
+           start: CGPoint(x: 380, y: 920), end: CGPoint(x: 670, y: 90), in: context)
+  context.addPath(tile)
+  context.setStrokeColor(rgb(0.76, 0.79, 0.84, 0.24))
+  context.setLineWidth(1.5)
+  context.strokePath()
 
-func drawRadialGradient(
-  in rect: NSRect,
-  radius: CGFloat,
-  colors: [CGColor],
-  locations: [CGFloat],
-  center: CGPoint,
-  endRadius: CGFloat
-) {
-  guard
-    let context = NSGraphicsContext.current?.cgContext,
-    let gradient = CGGradient(
-      colorsSpace: CGColorSpaceCreateDeviceRGB(),
-      colors: colors as CFArray,
-      locations: locations
-    )
-  else {
-    return
-  }
-
+  // A tilted rear sheet distinguishes saved history from the current item.
   context.saveGState()
-  let path = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
-  context.addPath(path)
-  context.clip()
-  context.drawRadialGradient(
-    gradient,
-    startCenter: center,
-    startRadius: 0,
-    endCenter: center,
-    endRadius: endRadius,
-    options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
-  )
+  context.translateBy(x: 456, y: 552)
+  context.rotate(by: 7 * .pi / 180)
+  let rear = CGPath(roundedRect: CGRect(x: -224, y: -252, width: 448, height: 528),
+                    cornerWidth: 64, cornerHeight: 64, transform: nil)
+  shadowedFill(rear, color: rgb(0.57, 0.80, 0.99), blur: 16, offset: -8, opacity: 0.12, in: context)
+  gradient(rear, colors: [rgb(0.70, 0.88, 1), rgb(0.45, 0.72, 0.97)],
+           start: CGPoint(x: -180, y: 270), end: CGPoint(x: 150, y: -250), in: context)
   context.restoreGState()
-}
 
-func drawStroke(
-  rect: NSRect,
-  radius: CGFloat,
-  lineWidth: CGFloat,
-  color: NSColor
-) {
-  let path = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
-  color.setStroke()
-  path.lineWidth = lineWidth
-  path.lineCapStyle = .round
-  path.lineJoinStyle = .round
-  path.stroke()
-}
-
-func drawGradientStroke(
-  path: CGPath,
-  lineWidth: CGFloat,
-  colors: [CGColor],
-  start: NSPoint,
-  end: NSPoint
-) {
-  guard
-    let context = NSGraphicsContext.current?.cgContext,
-    let gradient = CGGradient(
-      colorsSpace: CGColorSpaceCreateDeviceRGB(),
-      colors: colors as CFArray,
-      locations: nil
-    )
-  else {
-    return
-  }
-
+  let front = CGPath(roundedRect: CGRect(x: 304, y: 204, width: 452, height: 528),
+                     cornerWidth: 70, cornerHeight: 70, transform: nil)
+  shadowedFill(front, color: rgb(0.02, 0.32, 0.89), blur: 24, offset: -16, opacity: 0.24, in: context)
+  gradient(front, colors: [rgb(0.02, 0.47, 1), rgb(0.015, 0.32, 0.94), rgb(0.025, 0.22, 0.77)],
+           start: CGPoint(x: 390, y: 732), end: CGPoint(x: 650, y: 204), in: context)
   context.saveGState()
-  context.addPath(path)
-  context.setLineWidth(lineWidth)
-  context.setLineCap(.round)
-  context.setLineJoin(.round)
-  context.replacePathWithStrokedPath()
+  context.addPath(front)
   context.clip()
-  context.drawLinearGradient(gradient, start: start, end: end, options: [])
-  context.restoreGState()
-}
-
-func drawSolidStroke(path: CGPath, lineWidth: CGFloat, color: NSColor) {
-  guard let context = NSGraphicsContext.current?.cgContext else {
-    return
-  }
-
-  context.saveGState()
-  context.addPath(path)
-  context.setLineWidth(lineWidth)
-  context.setLineCap(.round)
-  context.setLineJoin(.round)
-  context.setStrokeColor(color.usingColorSpace(.deviceRGB)?.cgColor ?? color.cgColor)
+  context.addPath(front)
+  context.setStrokeColor(rgb(0.65, 0.85, 1, 0.4))
+  context.setLineWidth(2)
   context.strokePath()
   context.restoreGState()
+
+  // A continuous clamp silhouette with a hole, avoiding overlapping seams.
+  let clamp = CGMutablePath()
+  clamp.move(to: CGPoint(x: 440, y: 621))
+  clamp.addLine(to: CGPoint(x: 624, y: 621))
+  clamp.addCurve(to: CGPoint(x: 663, y: 660), control1: CGPoint(x: 646, y: 621), control2: CGPoint(x: 663, y: 638))
+  clamp.addCurve(to: CGPoint(x: 624, y: 699), control1: CGPoint(x: 663, y: 682), control2: CGPoint(x: 646, y: 699))
+  clamp.addLine(to: CGPoint(x: 600, y: 699))
+  clamp.addQuadCurve(to: CGPoint(x: 591, y: 708), control: CGPoint(x: 591, y: 699))
+  clamp.addCurve(to: CGPoint(x: 532, y: 767), control1: CGPoint(x: 591, y: 741), control2: CGPoint(x: 565, y: 767))
+  clamp.addCurve(to: CGPoint(x: 473, y: 708), control1: CGPoint(x: 499, y: 767), control2: CGPoint(x: 473, y: 741))
+  clamp.addQuadCurve(to: CGPoint(x: 464, y: 699), control: CGPoint(x: 473, y: 699))
+  clamp.addLine(to: CGPoint(x: 440, y: 699))
+  clamp.addCurve(to: CGPoint(x: 401, y: 660), control1: CGPoint(x: 418, y: 699), control2: CGPoint(x: 401, y: 682))
+  clamp.addCurve(to: CGPoint(x: 440, y: 621), control1: CGPoint(x: 401, y: 638), control2: CGPoint(x: 418, y: 621))
+  clamp.closeSubpath()
+  clamp.addEllipse(in: CGRect(x: 508, y: 684, width: 48, height: 48))
+  shadowedFill(clamp, color: rgb(0.98, 0.985, 1), blur: 10, offset: -7, opacity: 0.18,
+               rule: .evenOdd, in: context)
+  gradient(clamp, colors: [rgb(1, 1, 1), rgb(0.95, 0.965, 0.995)],
+           start: CGPoint(x: 500, y: 767), end: CGPoint(x: 550, y: 621), rule: .evenOdd, in: context)
+
+  for rect in [CGRect(x: 370, y: 412, width: 324, height: 43),
+               CGRect(x: 370, y: 332, width: 249, height: 43)] {
+    let line = CGPath(roundedRect: rect, cornerWidth: 21.5, cornerHeight: 21.5, transform: nil)
+    gradient(line, colors: [rgb(1, 1, 1), rgb(0.95, 0.965, 1)],
+             start: CGPoint(x: rect.midX, y: rect.maxY), end: CGPoint(x: rect.midX, y: rect.minY), in: context)
+  }
+  guard let data = bitmap.representation(using: .png, properties: [:]) else {
+    throw IconError.renderFailed
+  }
+  return data
 }
 
-func pngData(from image: NSImage) -> Data? {
-  guard
-    let tiff = image.tiffRepresentation,
-    let bitmap = NSBitmapImageRep(data: tiff)
-  else {
-    return nil
-  }
+func rgb(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat = 1) -> CGColor {
+  CGColor(srgbRed: red, green: green, blue: blue, alpha: alpha)
+}
 
-  return bitmap.representation(using: .png, properties: [:])
+func gradient(_ path: CGPath, colors: [CGColor], start: CGPoint, end: CGPoint,
+              rule: CGPathFillRule = .winding, in context: CGContext) {
+  context.saveGState()
+  defer { context.restoreGState() }
+  context.addPath(path)
+  context.clip(using: rule)
+  let gradient = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB),
+                            colors: colors as CFArray, locations: nil)!
+  context.drawLinearGradient(gradient, start: start, end: end,
+                             options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+}
+
+func shadowedFill(_ path: CGPath, color: CGColor, blur: CGFloat, offset: CGFloat, opacity: CGFloat,
+                  rule: CGPathFillRule = .winding, in context: CGContext) {
+  context.saveGState()
+  defer { context.restoreGState() }
+  context.setShadow(offset: CGSize(width: 0, height: offset), blur: blur, color: rgb(0.06, 0.11, 0.25, opacity))
+  context.addPath(path)
+  context.setFillColor(color)
+  context.drawPath(using: rule == .evenOdd ? .eoFill : .fill)
+}
+
+enum IconError: Error {
+  case renderFailed
 }

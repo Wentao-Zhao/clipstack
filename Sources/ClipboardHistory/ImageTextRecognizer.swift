@@ -4,9 +4,15 @@ import Vision
 
 enum ImageTextRecognizer {
   static func recognizedSearchText(from data: Data) async -> String? {
+    guard let image = NSImage(data: data), let text = await recognizedText(from: image) else {
+      return nil
+    }
+    return ClipboardCapturePolicy.preview(for: text)
+  }
+
+  static func recognizedText(from image: NSImage) async -> String? {
     await Task.detached(priority: .utility) {
       guard
-        let image = NSImage(data: data),
         let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
       else {
         return nil
@@ -32,7 +38,7 @@ enum ImageTextRecognizer {
         return nil
       }
 
-      return ClipboardCapturePolicy.preview(for: recognizedText)
+      return recognizedText
     }.value
   }
 }

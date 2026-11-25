@@ -25,7 +25,7 @@ enum PanelPreview {
     let controller = HistoryPanelController(
       store: store, configurationProvider: { config },
       onSelect: { item, _ in activated.append(item.id) },
-      onPinImage: { item, _ in pinned.append(item.id) },
+      onPinImage: { item in pinned.append(item.id) },
       onOpenPreferences: { openedPreferences = true }
     )
     controller.show()

@@ -19,6 +19,9 @@ swiftc -parse-as-library -I "$BUILD_DIR" -L "$BUILD_DIR" -lClipboardHistoryCore 
   "$ROOT_DIR/Sources/ClipboardHistory/ClipboardHistoryStore.swift" \
   "$ROOT_DIR/Sources/ClipboardHistory/ImageTextRecognizer.swift" \
   "$ROOT_DIR/Sources/ClipboardHistory/PinnedImageWindowManager.swift" \
+  "$ROOT_DIR/Sources/ClipboardHistory/PinnedImageFrameView.swift" \
+  "$ROOT_DIR/Sources/ClipboardHistory/OCRStatusPanelView.swift" \
+  "$ROOT_DIR/Sources/ClipboardHistory/PasteboardWriter.swift" \
   "$ROOT_DIR/Tests/PanelPreview/PanelPreview.swift" \
   -o "$BUILD_DIR/PanelPreview"
 
