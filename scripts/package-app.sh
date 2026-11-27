@@ -11,7 +11,7 @@ RESOURCES_DIR="$CONTENTS_DIR/Resources"
 export CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$ROOT_DIR/.build/clang-module-cache}"
 mkdir -p "$CLANG_MODULE_CACHE_PATH"
 
-BUILD_ARGS=(-c release)
+BUILD_ARGS=(--build-system native -c release)
 if [[ -n "${CLIPBOARD_HISTORY_BUILD_SYSTEM:-}" ]]; then
     BUILD_ARGS+=(--build-system "$CLIPBOARD_HISTORY_BUILD_SYSTEM")
 fi
@@ -23,7 +23,7 @@ if [[ -n "${CLIPBOARD_HISTORY_SDK:-}" ]]; then
 fi
 
 cd "$ROOT_DIR"
-swift build "${BUILD_ARGS[@]}"
+swift build "${BUILD_ARGS[@]}" --product ClipboardHistory
 BIN_DIR="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)"
 
 if [[ ! -f "$ROOT_DIR/Resources/AppIcon.icns" ]]; then
@@ -39,6 +39,9 @@ install -m 644 "$ROOT_DIR/Resources/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
 
 BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$CONTENTS_DIR/Info.plist")"
 SIGNING_IDENTITY="${CLIPBOARD_HISTORY_SIGNING_IDENTITY:--}"
+
+zsh "$ROOT_DIR/scripts/embed-sparkle.sh" "$APP_DIR" "$BIN_DIR" "$SIGNING_IDENTITY"
+install -m 644 "$ROOT_DIR/Resources/Sparkle-LICENSE.txt" "$RESOURCES_DIR/Sparkle-LICENSE.txt"
 
 if [[ "$SIGNING_IDENTITY" == "-" ]]; then
     codesign \

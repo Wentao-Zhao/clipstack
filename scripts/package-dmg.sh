@@ -5,14 +5,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP_DIR="$ROOT_DIR/dist/ClipStack.app"
 DMG_DIR="$ROOT_DIR/dist/dmg"
-DMG_PATH="$ROOT_DIR/dist/ClipStack.dmg"
+VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$ROOT_DIR/Resources/Info.plist")"
+DMG_PATH="$ROOT_DIR/dist/ClipStack-$VERSION.dmg"
 VOLUME_NAME="ClipStack"
 
-if [[ ! -d "$APP_DIR" ]]; then
-    echo "Missing app bundle: $APP_DIR" >&2
-    echo "Run scripts/package-app.sh first." >&2
-    exit 1
-fi
+"$ROOT_DIR/scripts/package-app.sh"
 
 rm -rf "$DMG_DIR" "$DMG_PATH"
 mkdir -p "$DMG_DIR"
@@ -27,6 +24,7 @@ hdiutil create \
     -format UDZO \
     "$DMG_PATH"
 
+zsh "$ROOT_DIR/scripts/verify-dmg.sh" "$DMG_PATH"
 rm -rf "$DMG_DIR"
 
 echo "Created: $DMG_PATH"

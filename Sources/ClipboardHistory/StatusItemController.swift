@@ -54,6 +54,8 @@ final class StatusItemController: NSObject {
     menu.addItem(clearItem)
 
     menu.addItem(.separator())
+    menu.addItem(AppUpdater.shared.makeMenuItem())
+    menu.addItem(.separator())
 
     let quitItem = NSMenuItem(title: "退出 App", action: #selector(quit), keyEquivalent: "q")
     quitItem.target = self
